@@ -4,13 +4,16 @@ namespace App\Http\Controllers;
 
 use App\Models\Customer;
 use Illuminate\Http\Request;
+use App\Models\User;
 use Illuminate\View\View;
 
 class CustomerController extends Controller
 {
 
-    function CustomerPage():View{
-        return view('pages.dashboard.customer-page');
+    function CustomerPage(Request $request):View{
+        $email = $request->header('email');
+        $user = User::where('email', '=', $email)->first();
+        return view('pages.dashboard.customer-page',compact('user'));
     }
 
     function CustomerCreate(Request $request){

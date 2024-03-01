@@ -10,16 +10,26 @@
                         <div class="row">
                             <div class="col-12 p-1">
                                 <label class="form-label">First Name *</label>
-                                <input type="text" class="form-control" id="customerNameUpdate">
+                                <input type="text" class="form-control" id="firstNameUpdate">
 
                                 <label class="form-label">Last Name *</label>
-                                <input type="text" class="form-control" id="customerNameUpdate">
+                                <input type="text" class="form-control" id="lastNameUpdate">
 
-                                 <label>Email Address</label>
-                                <input id="email" placeholder="User Email" class="form-control" type="email"/>
+                                <label class="form-label">User Email *</label>
+                                <input type="text" class="form-control" id="userEmailUpdate">
 
-                                <label class="form-label mt-3">Customer Mobile *</label>
-                                <input type="text" class="form-control" id="customerMobileUpdate">
+                                <label class="form-label">User Mobile *</label>
+                                <input type="text" class="form-control" id="userMobileUpdate">
+
+                                <label class="form-label">User Password *</label>
+                                <input type="password" class="form-control" id="userPasswordUpdate">
+
+                                <label class="form-label">User Type *</label>
+                                <select name="" id="userTypeUpdate" class="form-control">
+                                    <option value="admin">admin</option>
+                                    <option value="manager">manager</option>
+                                    <option value="editor">editor</option>
+                                </select>
 
                                 <input type="text" class="d-none" id="updateID">
                             </div>
@@ -28,8 +38,9 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button id="update-modal-close" class="btn bg-gradient-primary" data-bs-dismiss="modal" aria-label="Close">Close</button>
-                <button onclick="Update()" id="update-btn" class="btn bg-gradient-success" >Update</button>
+                <button id="update-modal-close" class="btn bg-gradient-primary" data-bs-dismiss="modal"
+                    aria-label="Close">Close</button>
+                <button onclick="Update()" id="update-btn" class="btn bg-gradient-success">Update</button>
             </div>
         </div>
     </div>
@@ -37,59 +48,69 @@
 
 
 <script>
-
-
-
-    async function FillUpUpdateForm(id){
-        document.getElementById('updateID').value=id;
+    async function FillUpUpdateForm(id) {
+        document.getElementById('updateID').value = id;
         showLoader();
-        let res=await axios.post("/customer-by-id",{id:id})
+        let res = await axios.post("/user-by-id", {
+            id: id
+        })
         hideLoader();
-        document.getElementById('customerNameUpdate').value=res.data['name'];
-        document.getElementById('customerEmailUpdate').value=res.data['email'];
-        document.getElementById('customerMobileUpdate').value=res.data['mobile'];
+        document.getElementById('firstNameUpdate').value = res.data['firstName'];
+        document.getElementById('lastNameUpdate').value = res.data['lastName'];
+        document.getElementById('userEmailUpdate').value = res.data['email'];
+        document.getElementById('userMobileUpdate').value = res.data['mobile'];
+        document.getElementById('userPasswordUpdate').value = res.data['user_type'];
+        document.getElementById('userTypeUpdate').value = res.data['user_type'];
     }
 
 
     async function Update() {
 
-        let customerName = document.getElementById('customerNameUpdate').value;
-        let customerEmail = document.getElementById('customerEmailUpdate').value;
-        let customerMobile = document.getElementById('customerMobileUpdate').value;
+        let firstName = document.getElementById('firstNameUpdate').value;
+        let lastName = document.getElementById('lastNameUpdate').value;
+        let userEmail = document.getElementById('userEmailUpdate').value;
+        let userMobile = document.getElementById('userMobileUpdate').value;
+        let userPassword = document.getElementById('userPasswordUpdate').value;
+        let userType = document.getElementById('userTypeUpdate').value;
         let updateID = document.getElementById('updateID').value;
 
 
-        if (customerName.length === 0) {
-            errorToast("Customer Name Required !")
+        if (firstName.length === 0) {
+            errorToast("User First Name Required !")
         }
-        else if(customerEmail.length===0){
-            errorToast("Customer Email Required !")
+        else if(lastName.length===0){
+            errorToast("User Last Name Required !")
         }
-        else if(customerMobile.length===0){
-            errorToast("Customer Mobile Required !")
+        else if(userEmail.length===0){
+            errorToast("User Email Required !")
+        }
+        else if(userMobile.length===0){
+            errorToast("User Mobile Required !")
+        }
+        else if(userPassword.length===0){
+            errorToast("User Passuser Required !")
         }
         else {
-
             document.getElementById('update-modal-close').click();
-
             showLoader();
-
-            let res = await axios.post("/update-customer",{name:customerName,email:customerEmail,mobile:customerMobile,id:updateID})
+            let res = await axios.post("/user-edit-data", {
+                id: updateID,
+                firstName: firstName,
+                lastName: lastName,
+                email: userEmail,
+                mobile: userMobile,
+                password: userPassword,
+                user_type: userType,
+            })
 
             hideLoader();
-
-            if(res.status===200 && res.data===1){
-
+            if(res.status === 200 && res.data === 1) {
                 successToast('Request completed');
-
                 document.getElementById("update-form").reset();
-
                 await getList();
-            }
-            else{
+            } else {
                 errorToast("Request fail !")
             }
         }
     }
-
 </script>

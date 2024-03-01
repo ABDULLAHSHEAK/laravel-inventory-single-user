@@ -3,13 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class CategoryController extends Controller
 {
 
-    function CategoryPage(){
-        return view('pages.dashboard.category-page');
+    function CategoryPage(Request $request){
+        $email = $request->header('email');
+        $user = User::where('email', '=', $email)->first();
+        return view('pages.dashboard.category-page',compact('user'));
     }
 
     function CategoryList(){

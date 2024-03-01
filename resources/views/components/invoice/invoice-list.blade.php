@@ -61,8 +61,13 @@ async function getList() {
                     <td>${item['discount']}</td>
                     <td>${item['payable']}</td>
                     <td>
+                        @if ($user->user_type == 'admin')
                         <button data-id="${item['id']}" data-cus="${item['customer']['id']}" class="viewBtn btn btn-outline-dark text-sm px-3 py-1 btn-sm m-0"><i class="fa text-sm fa-eye"></i></button>
                         <button data-id="${item['id']}" data-cus="${item['customer']['id']}" class="deleteBtn btn btn-outline-dark text-sm px-3 py-1 btn-sm m-0"><i class="fa text-sm  fa-trash-alt"></i></button>
+                        @else
+                        <button data-id="${item['id']}" data-cus="${item['customer']['id']}" class="viewBtn btn btn-outline-dark text-sm px-3 py-1 btn-sm m-0"><i class="fa text-sm fa-eye"></i></button>
+                        @endif
+
                     </td>
                  </tr>`
         tableList.append(row)

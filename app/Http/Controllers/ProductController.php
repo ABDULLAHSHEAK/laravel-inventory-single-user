@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\View\View;
@@ -11,8 +12,10 @@ class ProductController extends Controller
 {
 
 
-    function ProductPage():View{
-        return view('pages.dashboard.product-page');
+    function ProductPage(Request $request):View{
+        $email = $request->header('email');
+        $user = User::where('email', '=', $email)->first();
+        return view('pages.dashboard.product-page',compact('user'));
     }
 
 

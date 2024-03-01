@@ -191,12 +191,5 @@ class UserController extends Controller
         }
     }
 
-    public function AllUser(){
-        return view('pages.dashboard.user-page');
-    }
-    public function UserList(){
-        $data =  User::all();
-        return response($data);
-    }
 
 }
