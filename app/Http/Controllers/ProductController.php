@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Product;
 use App\Models\User;
+use App\Models\Product;
+use Illuminate\View\View;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
-use Illuminate\View\View;
 
 class ProductController extends Controller
 {
@@ -23,26 +24,35 @@ class ProductController extends Controller
     {
 
         // Prepare File Name & Path
-        $img=$request->file('img');
+        // $img_url = null; // Default to null
+        if ($request->hasFile('img')) {
+            $img = $request->file('img');
+            $t = time();
+            $file_name = $img->getClientOriginalName();
+            $img_name = "{$t}-{$file_name}";
+            $img_url = "uploads/{$img_name}";
 
-        $t=time();
-        $file_name=$img->getClientOriginalName();
-        $img_name="{$t}-{$file_name}";
-        $img_url="uploads/{$img_name}";
+            // Upload File
+            $img->move(public_path('uploads'), $img_name);
+        }else{
+            $img_url = 'uploads/default.jpg ';
+        }
 
-
-        // Upload File
-        $img->move(public_path('uploads'),$img_name);
-
+        $code = rand(1000, 9999);
+        // $name = Str::lower($request->input('name'));
 
         // Save To Database
         return Product::create([
-            'name'=>$request->input('name'),
-            'price'=>$request->input('price'),
-            'unit'=>$request->input('unit'),
-            'img_url'=>$img_url,
-            'category_id'=>$request->input('category_id')
+            'name' => $request->input('name'),
+            'product_code' => Str::lower($request->input('name')) . $code,
+            'price' => $request->input('price'),
+            'stock' => $request->input('stock'),
+            'expire_date' => $request->input('expire_date'),
+            'created_by' => $request->input('created_by'),
+            'img_url' => $img_url,
+            'category_id' => $request->input('category_id')
         ]);
+
     }
 
 
@@ -94,7 +104,9 @@ class ProductController extends Controller
             return Product::where('id',$product_id)->update([
                 'name'=>$request->input('name'),
                 'price'=>$request->input('price'),
-                'unit'=>$request->input('unit'),
+                'stock'=>$request->input('stock'),
+                'expire_date'=>$request->input('expire_date'),
+                'updated_by'=>$request->input('updated_by'),
                 'img_url'=>$img_url,
                 'category_id'=>$request->input('category_id')
             ]);
@@ -105,7 +117,9 @@ class ProductController extends Controller
             return Product::where('id',$product_id)->update([
                 'name'=>$request->input('name'),
                 'price'=>$request->input('price'),
-                'unit'=>$request->input('unit'),
+                'stock' => $request->input('stock'),
+                'expire_date' => $request->input('expire_date'),
+                'updated_by' => $request->input('updated_by'),
                 'category_id'=>$request->input('category_id'),
             ]);
         }

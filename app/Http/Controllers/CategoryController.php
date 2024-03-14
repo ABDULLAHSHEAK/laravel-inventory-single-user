@@ -36,8 +36,6 @@ class CategoryController extends Controller
         return Category::where('id',$category_id)->first();
     }
 
-
-
     function CategoryUpdate(Request $request){
         $category_id=$request->input('id');
         return Category::where('id',$category_id)->update([

@@ -1,14 +1,15 @@
 <?php
 
 namespace App\Http\Controllers;
-use App\Models\Customer;
 use Exception;
-use Illuminate\Support\Facades\DB;
-use App\Models\Invoice;
 use App\Models\User;
-use App\Models\InvoiceProduct;
-use Illuminate\Http\Request;
+use App\Models\Invoice;
+use App\Models\Product;
+use App\Models\Customer;
 use Illuminate\View\View;
+use Illuminate\Http\Request;
+use App\Models\InvoiceProduct;
+use Illuminate\Support\Facades\DB;
 
 
 class InvoiceController extends Controller
@@ -20,20 +21,20 @@ class InvoiceController extends Controller
         return view('pages.dashboard.invoice-page',compact('user'));
     }
 
-    function SalePage():View{
-        return view('pages.dashboard.sale-page');
+    function SalePage(Request $request):View{
+        $email = $request->header('email');
+        $user = User::where('email', '=', $email)->first();
+        return view('pages.dashboard.sale-page',compact('user'));
     }
 
     function invoiceCreate(Request $request){
-
         DB::beginTransaction();
-
         try {
-
         $total=$request->input('total');
         $discount=$request->input('discount');
         $vat=$request->input('vat');
         $payable=$request->input('payable');
+        $created_by = $request->input('created_by');
 
         $customer_id=$request->input('customer_id');
 
@@ -43,14 +44,21 @@ class InvoiceController extends Controller
             'vat'=>$vat,
             'payable'=>$payable,
             'customer_id'=>$customer_id,
+            'created_by' => $created_by,
         ]);
-
 
        $invoiceID=$invoice->id;
 
        $products= $request->input('products');
 
        foreach ($products as $EachProduct) {
+            $oldStock = $EachProduct['stock'];
+            $newStock = $EachProduct['qty'];
+            $currontStock = $oldStock - $newStock;
+            $prodcutId = $EachProduct['product_id'];
+            $record = Product::find($prodcutId);
+            $record->update(['stock' => $currontStock]);
+
             InvoiceProduct::create([
                 'invoice_id' => $invoiceID,
                 'product_id' => $EachProduct['product_id'],
@@ -66,7 +74,7 @@ class InvoiceController extends Controller
         }
         catch (Exception $e) {
             DB::rollBack();
-            return 0;
+            return $e;
         }
 
     }
@@ -88,18 +96,16 @@ class InvoiceController extends Controller
         );
     }
 
-    function invoiceDelete(Request $request){
+    function invoiceDelete(Request $request)
+    {
         DB::beginTransaction();
         try {
-            $user_id=$request->header('id');
-            InvoiceProduct::where('invoice_id',$request->input('inv_id'))
-                ->where('user_id',$user_id)
-                ->delete();
-            Invoice::where('id',$request->input('inv_id'))->delete();
+            // $user_id = $request->header('id');
+            InvoiceProduct::where('invoice_id', $request->input('inv_id'))->delete();
+            Invoice::where('id', $request->input('inv_id'))->delete();
             DB::commit();
             return 1;
-        }
-        catch (Exception $e){
+        } catch (Exception $e) {
             DB::rollBack();
             return 0;
         }
